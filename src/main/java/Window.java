@@ -1,9 +1,10 @@
 import animals.Animal;
 import animals.Gender;
+import interfaces.ISellable;
+import managers.ReservationManager;
+import managers.ShopManager;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.event.*;
 
 public class Window extends JDialog {
@@ -17,10 +18,18 @@ public class Window extends JDialog {
     private JList listAnimals;
     private JButton btnReserve;
     private JTextField txtReserveName;
+    private JTextField txtItemName;
+    private JTextField txtItemPrice;
+    private JList listItems;
+    private JButton btnBuyItem;
+    private JButton btnAddItem;
+    private JList listCart;
+    private JButton btnRemoveFromCart;
 
-    private Reservation reservation;
+    private ReservationManager reservation;
+    private ShopManager shopManager;
 
-    public Window() {
+    private Window() {
         setContentPane(contentPane);
         setModal(true);
 
@@ -36,9 +45,11 @@ public class Window extends JDialog {
     }
 
     private void registerEvents() {
-        reservation = new Reservation();
+        reservation = new ReservationManager();
+        shopManager = new ShopManager();
 
         boxSpecies.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 boolean enabled = boxSpecies.getSelectedItem().toString() == "Cat";
                 txtBadHabits.enableInputMethods(enabled);
@@ -46,6 +57,7 @@ public class Window extends JDialog {
         });
 
         btnAddAnimal.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String species = boxSpecies.getSelectedItem().toString();
                 String name = txtName.getText();
@@ -59,11 +71,12 @@ public class Window extends JDialog {
                     reservation.newDog(name, gender);
                 }
 
-                reloadList();
+                reloadAnimalList();
             }
         });
 
         btnReserve.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 Animal animal = (Animal) listAnimals.getSelectedValue();
 
@@ -71,13 +84,64 @@ public class Window extends JDialog {
                     String reserverName = txtReserveName.getText();
 
                     animal.reserve(reserverName);
-                    reloadList();
+                    shopManager.addItemToCart(animal);
+
+                    reloadAnimalList();
+                    reloadCartList();
+                }
+            }
+        });
+
+        btnAddItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    String name = txtItemName.getText();
+                    double price = Double.parseDouble(txtItemPrice.getText());
+                    ISellable item = new ShopItem(name, price);
+
+                    shopManager.addItem(item);
+                    reloadItemList();
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Invalid price!", "Error!", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnBuyItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                 ShopItem item = (ShopItem) listItems.getSelectedValue();
+
+                if (item != null) {
+                    shopManager.addItemToCart(item);
+                    reloadCartList();
+                }
+            }
+        });
+
+        btnRemoveFromCart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                ISellable item = (ISellable) listCart.getSelectedValue();
+
+                if (item != null) {
+                    shopManager.removeItemFromCart(item);
+                    reloadCartList();
                 }
             }
         });
     }
 
-    private void reloadList() {
+    private void reloadAnimalList() {
         listAnimals.setListData(reservation.getAnimals().toArray());
+    }
+
+    private void reloadItemList() {
+        listItems.setListData(shopManager.getItems().toArray());
+    }
+
+    private void reloadCartList() {
+        listCart.setListData(shopManager.getCart().toArray());
     }
 }

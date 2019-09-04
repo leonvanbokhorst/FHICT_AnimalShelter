@@ -1,3 +1,5 @@
+package managers;
+
 import animals.Animal;
 import animals.Cat;
 import animals.Dog;
@@ -6,7 +8,7 @@ import animals.Gender;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Reservation {
+public class ReservationManager {
     private List<Animal> animals = new LinkedList<Animal>();
 
     public void newCat(String name, Gender gender, String badHabits) {

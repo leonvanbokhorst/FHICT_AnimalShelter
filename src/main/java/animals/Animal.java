@@ -1,8 +1,10 @@
 package animals;
 
+import interfaces.ISellable;
+
 import java.sql.Timestamp;
 
-public abstract class Animal {
+public abstract class Animal implements ISellable {
     private String name;
     private Gender gender;
     private Reservor reservor;
@@ -22,9 +24,14 @@ public abstract class Animal {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public String toString() {
         String reserved = reservor == null ? "Not reserved" : "Reserved by " + reservor.getName();
 
-        return name + ", " + gender + ", " + reserved;
+        return name + ", " + gender + ", " + reserved + ", €" + getPrice();
     }
 }
