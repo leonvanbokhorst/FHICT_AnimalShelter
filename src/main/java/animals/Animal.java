@@ -2,7 +2,7 @@ package animals;
 
 import java.sql.Timestamp;
 
-public class Animal {
+public abstract class Animal {
     private String name;
     private Gender gender;
     private Reservor reservor;
@@ -15,8 +15,7 @@ public class Animal {
     public boolean reserve(String reserverName) {
         if (reservor == null) {
             Timestamp time = new Timestamp(System.currentTimeMillis());
-            Reservor reservor = new Reservor(reserverName, time);
-            this.reservor = reservor;
+            this.reservor = new Reservor(reserverName, time);
             return true;
         }
         return false;
